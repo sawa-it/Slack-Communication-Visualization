@@ -6,7 +6,7 @@ from graphviz import Graph
 
 # 社員リスト作成
 employee_list = {}
-json_files = glob.glob("./20211026_slack/*/*.json")
+json_files = glob.glob("./logs/*/*.json")
 for file in json_files:
     json_open = open(file, 'r')
     json_load = json.load(json_open)
@@ -15,37 +15,31 @@ for file in json_files:
             employee_list[v['user']] = v['user_profile']['real_name']
 
 # コミュニケーションの解析
-employee_commication_list = {}
+commication = []
+json_files = glob.glob("./logs/*/*.json") # 特定のチャンネルを確認する時はここを変更する
 pattern = '<@(.*?)>' # メンションのパターン
-
-# 特定のプロジェクトを確認する時はここを変更する
-json_files = glob.glob("./20211026_slack/pj-coda/*.json")
+graph = Graph(format='svg', engine='fdp')
 
 for file in json_files:
+    path =  re.findall('./logs/(.*)/', file)
     json_open = open(file, 'r')
     json_load = json.load(json_open)
     for v in json_load:
-        if 'user' in v and 'text' in v and re.findall(pattern,v['text']):
-            employee_commication_list[v['user']] = []
-            partners = re.findall(pattern,v['text'])
+        if 'user' in v and re.findall(pattern,v['text']):            
+            partners = re.findall(pattern,v['text']) # メンション先（複数）
             for partner in partners:
-                #線の重複を防ぐため、自分のキーに相手がいない かつ 相手のキーがあり相手のキーに自分がいない場合のみコミュニケーション先を追加
-                if not partner in employee_commication_list[v['user']] and not (partner in employee_commication_list and v['user'] in employee_commication_list[partner]):
-                    employee_commication_list[v['user']].append(partner)
-
-# dot作成（集計）
-graph = Graph(format='svg', engine='fdp')
-
-for employee in employee_commication_list:
-    if employee in employee_list:  
-        for you in employee_commication_list[employee]:
-            i = employee_list[employee]
-            if you in employee_list:
-                u = employee_list[you]
-                graph.edge(i,u) # 辺を追加
-
+                #線の重複防止処理
+                if not partner+v['user'] in commication:
+                    # メンション先でチャンネルに参加してないユーザのIDを名前として登録
+                    if not partner in employee_list:
+                        employee_list[partner] = partner
+                    if not v['user'] in employee_list:
+                        employee_list[v['user']] = v['user']                    
+                    graph.edge(employee_list[partner],employee_list[v['user']]) # ノード+線を追加
+                    # 重複チェック用配列に追加
+                    commication.append(v['user']+partner) 
+                    commication.append(partner+v['user']) 
 # 画像を保存
-graph.render("image/pj-coda")
-
+graph.render("image/" + path[0])
 # 画像を表示
 graph.view()
