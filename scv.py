@@ -20,26 +20,40 @@ json_files = glob.glob("./logs/*/*.json") # 特定のチャンネルを確認す
 pattern = '<@(.*?)>' # メンションのパターン
 graph = Graph(format='svg', engine='fdp')
 
+path = []
+before_path = []
+
 for file in json_files:
+    before_path = path 
     path =  re.findall('./logs/(.*)/', file)
     json_open = open(file, 'r')
     json_load = json.load(json_open)
-    for v in json_load:
-        if 'user' in v and re.findall(pattern,v['text']):            
-            partners = re.findall(pattern,v['text']) # メンション先（複数）
-            for partner in partners:
-                #線の重複防止処理
-                if not partner+v['user'] in commication:
-                    # メンション先でチャンネルに参加してないユーザのIDを名前として登録
-                    if not partner in employee_list:
-                        employee_list[partner] = partner
-                    if not v['user'] in employee_list:
-                        employee_list[v['user']] = v['user']                    
-                    graph.edge(employee_list[partner],employee_list[v['user']]) # ノード+線を追加
-                    # 重複チェック用配列に追加
-                    commication.append(v['user']+partner) 
-                    commication.append(partner+v['user']) 
-# 画像を保存
-graph.render("image/" + path[0])
+    
+    # 同じチャンネルの間であればノードを追加する
+    if not before_path or path == before_path:
+        for v in json_load:
+            if 'user' in v and re.findall(pattern,v['text']):            
+                partners = re.findall(pattern,v['text']) # メンション先（複数）
+                for partner in partners:
+                    #線の重複防止処理
+                    if not partner+v['user'] in commication:
+                        # メンション先でチャンネルに参加してないユーザのIDを名前として登録
+                        if not partner in employee_list:
+                            employee_list[partner] = partner
+                        if not v['user'] in employee_list:
+                            employee_list[v['user']] = v['user']                    
+                        graph.edge(employee_list[partner],employee_list[v['user']]) # ノード+線を追加
+                        # 重複チェック用配列に追加
+                        commication.append(v['user']+partner) 
+                        commication.append(partner+v['user']) 
+    else:
+        # 画像を保存
+        graph.render("image/" + before_path[0])
+        print(before_path)
+        #graph.view()
+        graph.clear()
+        commication = []
+
 # 画像を表示
-graph.view()
+graph.render("image/" + path[0])
+# graph.view() # 画像を見たい時用
