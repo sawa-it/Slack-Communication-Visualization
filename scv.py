@@ -19,7 +19,6 @@ commication = []
 json_files = glob.glob("./logs/*/*.json") # 特定のチャンネルを確認する時はここを変更する
 pattern = '<@(.*?)>' # メンションのパターン
 graph = Graph(format='svg', engine='fdp')
-
 path = []
 before_path = []
 
@@ -41,16 +40,16 @@ for file in json_files:
                         if not partner in employee_list:
                             employee_list[partner] = partner
                         if not v['user'] in employee_list:
-                            employee_list[v['user']] = v['user']                    
-                        graph.edge(employee_list[partner],employee_list[v['user']]) # ノード+線を追加
+                            employee_list[v['user']] = v['user']
+                        # ノード+線を追加            
+                        graph.edge(employee_list[partner],employee_list[v['user']])
                         # 重複チェック用配列に追加
                         commication.append(v['user']+partner) 
                         commication.append(partner+v['user']) 
     else:
         # 画像を保存
         graph.render("image/" + before_path[0])
-        print(before_path)
-        #graph.view()
+        #チャンネルごとにリセット
         graph.clear()
         commication = []
 
