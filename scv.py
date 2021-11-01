@@ -16,9 +16,9 @@ for file in json_files:
 
 # コミュニケーションの解析
 commication = []
-json_files = glob.glob("./logs/*/*.json") # 特定のチャンネルを確認する時はここを変更する
+json_files = glob.glob("./logs/ex-herokura/*.json") # 特定のチャンネルを確認する時はここを変更する
 pattern = '<@(.*?)>' # メンションのパターン
-graph = Graph(format='svg', engine='fdp')
+graph = Graph(format='svg', engine='sfdp')
 path = []
 before_path = []
 
