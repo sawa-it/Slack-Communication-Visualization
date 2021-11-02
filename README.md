@@ -1,6 +1,8 @@
 # Slack-Communication-Visualization.
 Slackのコミュニケーションを可視化する
 
+<img width="967" alt="スクリーンショット 2021-11-02 19 21 11" src="https://user-images.githubusercontent.com/42475390/139835404-a9eb4e7b-5457-42c0-a422-0749b84263c2.png">
+
 ## graphviz install
 graphvizのインストール
 ```
@@ -50,6 +52,15 @@ python scv.py
 実行するとimageディレクトリに可視化対象としたチャンネルのdotファイルおよびsvgファイルが生成される
 <img width="967" alt="スクリーンショット 2021-11-02 19 21 11" src="https://user-images.githubusercontent.com/42475390/139835404-a9eb4e7b-5457-42c0-a422-0749b84263c2.png">
 
+```
+dotファイル
+graph {
+	"a" -- "b"
+	"a" -- "c"
+	"b" -- "c"
+}
+```
+
 拡張子およびレイアウトについては21行目で変更できる
 >graph = Graph(format='svg', engine='sfdp')
 
@@ -58,3 +69,11 @@ python scv.py
 すぐに結果を確認したい場合、コメントをとけば描画後ブラウザで確認ができる。
 チャンネルが多いと描画が終わるたびに開かれるので注意
 > graph.view() # 画像を見たい時用
+
+##Remarks
+備考
+- 以下の環境で確認済み
+  > Python 3.10.0
+  > pyenv 2.1.0
+- 誰と誰が連絡を取っているかをメインに考えたため、@hereやグループメンション等については考慮していない
+- ログの仕様上発言がないユーザからは `real_name` が取得できないためユーザIDを氏名に置き換えている（グループメンションも同様）
